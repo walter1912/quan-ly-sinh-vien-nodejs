@@ -1,0 +1,24 @@
+{
+  "name": "quan-ly-sinh-vien-api",
+  "version": "1.0.0",
+  "description": "backend by nodejs tạo api giúp quản lý sinh viên ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/walter1912/quan-ly-sinh-vien-nodejs.git"
+  },
+  "keywords": [
+    "nodejs",
+    "qlsv",
+    "quan-ly-sinh-vien"
+  ],
+  "author": "walter1912",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/walter1912/quan-ly-sinh-vien-nodejs/issues"
+  },
+  "homepage": "https://github.com/walter1912/quan-ly-sinh-vien-nodejs#readme"
+}
