@@ -8,6 +8,10 @@ const {
     updateSinhvien,
     deleteSinhvien,
   } = require('../controllers/sinhvienController');
+const validateToken = require("../middleware/validateTokenHandler");
+
+
+routes.use(validateToken);
 
 routes.route("/").get(getSinhviens);
 

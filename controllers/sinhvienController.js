@@ -2,7 +2,7 @@ const asyncHandler = require("express-async-handler");
 const Sinhvien = require("../models/Sinhvien");
 // @desc
 // @route GET api/sinhvien
-// @access public
+// @access private
 const getSinhviens = asyncHandler(async (req, res) => {
   const sinhviens = await Sinhvien.find();
   res.status(200).json({ message: "Get all sinh viên", sinhviens });
@@ -10,7 +10,7 @@ const getSinhviens = asyncHandler(async (req, res) => {
 
 // @desc
 // @route POST api/sinhvien
-// @access public
+// @access private
 const createSinhvien = asyncHandler(async (req, res) => {
   console.log("Request body: ", req.body);
   const { tenSV, maSV } = req.body;
@@ -19,6 +19,7 @@ const createSinhvien = asyncHandler(async (req, res) => {
     throw new Error("Cần phải điền vào tất cả các field");
   }
   const sinhvien = await Sinhvien.create({
+    user_id: req.user.id,
     tenSV,
     maSV,
   });
@@ -26,7 +27,7 @@ const createSinhvien = asyncHandler(async (req, res) => {
 });
 // @desc
 // @route GET api/sinhvien/:id
-// @access public
+// @access private
 const getSinhvien = asyncHandler(async (req, res) => {
   const sinhvien = await Sinhvien.findById(req.params.id);
   if (!sinhvien) {
@@ -39,14 +40,18 @@ const getSinhvien = asyncHandler(async (req, res) => {
 });
 // @desc
 // @route PUT api/sinhvien/:id
-// @access public
+// @access private
 const updateSinhvien = asyncHandler(async (req, res) => {
   const sinhvien = await Sinhvien.findById(req.params.id);
   if (!sinhvien) {
     res.status(404);
     throw new Error("Sinh viên not found");
   }
-  const updated = await Sinhvien.findByIdAndUpdate(req.params.id, req.body, {
+  const dataUpdate = {
+    user_id: req.user.id,
+    ...req.body,
+  };
+  const updated = await Sinhvien.findByIdAndUpdate(req.params.id, dataUpdate, {
     new: true,
   });
   res
@@ -55,7 +60,7 @@ const updateSinhvien = asyncHandler(async (req, res) => {
 });
 // @desc
 // @route DELETE api/sinhvien/:id
-// @access public
+// @access private
 const deleteSinhvien = asyncHandler(async (req, res) => {
   const sinhvien = await Sinhvien.findById(req.params.id);
   if (!sinhvien) {
