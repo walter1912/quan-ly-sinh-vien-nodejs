@@ -4,7 +4,9 @@
   "description": "backend by nodejs tạo api giúp quản lý sinh viên ",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "dev": "nodemon index.js"
   },
   "repository": {
     "type": "git",
@@ -20,5 +22,13 @@
   "bugs": {
     "url": "https://github.com/walter1912/quan-ly-sinh-vien-nodejs/issues"
   },
-  "homepage": "https://github.com/walter1912/quan-ly-sinh-vien-nodejs#readme"
+  "homepage": "https://github.com/walter1912/quan-ly-sinh-vien-nodejs#readme",
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-async-handler": "^1.2.0"
+  }
 }
