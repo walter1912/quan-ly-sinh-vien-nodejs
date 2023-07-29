@@ -3,7 +3,11 @@ console.log("hello world");
 // import thư viện
 const express = require("express");
 const { errorHandler } = require("./middleware/errorHandler");
+const connectDb = require("./config/mongoConnection");
 const dotenv = require("dotenv").config();
+
+// connect mongoDB
+connectDb();
 
 const app = express();
 const port = process.env.PORT || 5123;

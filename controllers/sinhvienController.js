@@ -1,9 +1,11 @@
 const asyncHandler = require("express-async-handler");
+const Sinhvien = require("../models/Sinhvien");
 // @desc
 // @route GET api/sinhvien
 // @access public
 const getSinhviens = asyncHandler(async (req, res) => {
-  res.status(200).json({ message: "Get all sinh viên" });
+  const sinhviens = await Sinhvien.find();
+  res.status(200).json({ message: "Get all sinh viên" , sinhviens});
 });
 
 // @desc
@@ -16,7 +18,10 @@ const createSinhvien = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error("Cần phải điền vào tất cả các field");
   }
-  res.status(201).json({ message: "Post sinh viên" });
+  const sinhvien = await Sinhvien.create({
+    tenSV, maSV
+  })
+  res.status(201).json({ message: "Post sinh viên" , sinhvien});
 });
 // @desc
 // @route GET api/sinhvien/:id
