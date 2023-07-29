@@ -14,6 +14,8 @@ const port = process.env.PORT || 5123;
 
 app.use(express.json());
 app.use("/api/sinhvien", require("./routes/sinhvienRoutes"));
+app.use("/api/user", require("./routes/userRoutes"));
+
 app.use(errorHandler);
 // run app
 app.listen(port, () => {
