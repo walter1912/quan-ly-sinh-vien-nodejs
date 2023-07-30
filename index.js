@@ -18,6 +18,8 @@ app.use("/api/users", require("./routes/userRoutes"));
 app.use("/api/giangviens", require("./routes/giangvienRoutes"));
 app.use("/api/khoas", require("./routes/khoaRoutes"));
 app.use("/api/posts", require("./routes/postRoutes"));
+app.use("/api/comments", require("./routes/commentRoutes"));
+
 
 app.use(errorHandler);
 // run app
