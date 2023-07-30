@@ -5,7 +5,6 @@
   B2: npm run dev
 
 # phân tích các API
-
      (-) là private - phải được cấp quyền
      (+) là public
     1. user
@@ -17,7 +16,6 @@
     2. sinhvien
         + get '/': lấy danh sách sinh viên
         + get '/:khoaId': lấy danh sách sinh viên theo khoa
-        + get '/:giangvienId': lấy danh sách sinh viên mà giảng viên có giangvienId tạo
         + get '/:userId': lấy danh sách sinh viên mà người dùng có userId tạo
         - get '/:id': lấy sinh viên có id
         (

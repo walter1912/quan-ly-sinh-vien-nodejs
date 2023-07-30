@@ -1,17 +1,5 @@
 const mongoose = require("mongoose");
 
-// id: number;
-// username: string;
-// password: string;
-// role: number;
-// ten: string;
-// ma: string;
-// ngaySinh: any;
-// gioiTinh: string;
-// khoaId: number;
-// email: string;
-// 1 với giảng viên, 2 với sinh viên
-
 
 const userSchema = mongoose.Schema(
   {
