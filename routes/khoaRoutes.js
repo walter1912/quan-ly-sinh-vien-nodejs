@@ -22,3 +22,5 @@ routes.route("/:id").get(getKhoaById);
 routes.route("/").post(checkAdmin, createKhoa);
 routes.route("/:id").put(checkAdmin, updateKhoa);
 routes.route("/:id").delete(checkAdmin, deleteKhoa);
+
+module.exports = routes

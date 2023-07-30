@@ -67,13 +67,13 @@ const getGiangvienById = asyncHandler(async (req, res) => {
 // @route GET /maSV/:maSV
 // @access private
 const createGiangvien = asyncHandler(async (req, res) => {
-  const { userId, tenGV, maGV, ngaySinh, gioiTinh, khoaId } = req.body;
-  if (!userId || !tenGV || !maGV || !ngaySinh || !gioiTinh || !khoaId) {
+  const { tenGV, maGV, ngaySinh, gioiTinh, khoaId } = req.body;
+  if (!tenGV || !maGV || !ngaySinh || !gioiTinh || !khoaId) {
     res.status(400);
     throw new Error("Cần phải điền vào tất cả các field");
   }
   const giangvien = await Giangvien.create({
-    userId,
+    userId: req.user.id,
     tenGV,
     maGV,
     ngaySinh,
