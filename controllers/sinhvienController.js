@@ -49,6 +49,7 @@ const updateSinhvien = asyncHandler(async (req, res) => {
     throw new Error("Sinh viên not found");
   }
   const dataUpdate = {
+    ...sinhvien,
     ...req.body,
   };
   const updated = await Sinhvien.findByIdAndUpdate(req.params.id, dataUpdate, {
@@ -56,7 +57,10 @@ const updateSinhvien = asyncHandler(async (req, res) => {
   });
   res
     .status(201)
-    .json({ message: `Update sinh viên có id = ${req.params.id}`, sinhvien: updated });
+    .json({
+      message: `Update sinh viên có id = ${req.params.id}`,
+      sinhvien: updated,
+    });
 });
 // @desc
 // @route DELETE api/sinhvien/:id

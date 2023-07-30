@@ -53,6 +53,10 @@ const getGiangvienByMaGV = asyncHandler(async (req, res) => {
 // @access public
 const getGiangvienById = asyncHandler(async (req, res) => {
   const giangvien = await Giangvien.findById(res.params.id);
+  if (!giangvien) {
+    res.status(404);
+    throw new Error("Không tìm thấy giảng viên");
+  }
   res.status(200).json({
     message: "lấy giảng viên theo id",
     giangvien,
@@ -92,6 +96,7 @@ const updateGiangvien = asyncHandler(async (req, res) => {
     throw new Error("Giang vien not found");
   }
   const dataUpdate = {
+    ...giangvien,
     ...req.body,
   };
   const updated = await Giangvien.findByIdAndUpdate(req.params.id, dataUpdate);
@@ -110,22 +115,21 @@ const deleteGiangvien = asyncHandler(async (req, res) => {
     res.status(404);
     throw new Error("Giang vien not found");
   }
- 
+
   const deleted = await Giangvien.findByIdAndRemove(req.params.id);
   res.status(201).json({
-    message: "xoa giảng viên",
+    message: "xóa giảng viên",
     deleted,
   });
 });
 
-
 module.exports = {
-    getGiangviens,
-getGiangviensByKhoa,
-getGiangviensByUser,
-getGiangvienByMaGV,
-getGiangvienById,
-createGiangvien,
-updateGiangvien,
-deleteGiangvien,
-}
+  getGiangviens,
+  getGiangviensByKhoa,
+  getGiangviensByUser,
+  getGiangvienByMaGV,
+  getGiangvienById,
+  createGiangvien,
+  updateGiangvien,
+  deleteGiangvien,
+};
