@@ -13,8 +13,9 @@ const app = express();
 const port = process.env.PORT || 5123;
 
 app.use(express.json());
-app.use("/api/sinhvien", require("./routes/sinhvienRoutes"));
-app.use("/api/user", require("./routes/userRoutes"));
+app.use("/api/sinhviens", require("./routes/sinhvienRoutes"));
+app.use("/api/users", require("./routes/userRoutes"));
+app.use("/api/giangviens", require("./routes/giangvienRoutes"));
 
 app.use(errorHandler);
 // run app

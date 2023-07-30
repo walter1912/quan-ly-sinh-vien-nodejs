@@ -20,7 +20,7 @@ const sinhvienSchema = mongoose.Schema(
     },
     khoaId: {
       type: mongoose.Schema.Types.ObjectId,
-      required: true,
+      // required: true,
       ref: "Khoa",
     },
     giangVienId: {

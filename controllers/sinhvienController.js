@@ -13,15 +13,16 @@ const getSinhviens = asyncHandler(async (req, res) => {
 // @access private
 const createSinhvien = asyncHandler(async (req, res) => {
   console.log("Request body: ", req.body);
-  const { tenSV, maSV } = req.body;
-  if (!tenSV || !maSV) {
+  const { tenSV, maSV, ngaySinh, gioiTinh } = req.body;
+  if (!tenSV || !maSV || !ngaySinh || !gioiTinh) {
     res.status(400);
     throw new Error("Cần phải điền vào tất cả các field");
   }
   const sinhvien = await Sinhvien.create({
-    user_id: req.user.id,
     tenSV,
     maSV,
+    ngaySinh,
+    gioiTinh,
   });
   res.status(201).json({ message: "Post sinh viên", sinhvien });
 });
@@ -48,7 +49,6 @@ const updateSinhvien = asyncHandler(async (req, res) => {
     throw new Error("Sinh viên not found");
   }
   const dataUpdate = {
-    user_id: req.user.id,
     ...req.body,
   };
   const updated = await Sinhvien.findByIdAndUpdate(req.params.id, dataUpdate, {
@@ -56,7 +56,7 @@ const updateSinhvien = asyncHandler(async (req, res) => {
   });
   res
     .status(201)
-    .json({ message: `Update sinh viên có id = ${req.params.id}`, updated });
+    .json({ message: `Update sinh viên có id = ${req.params.id}`, sinhvien: updated });
 });
 // @desc
 // @route DELETE api/sinhvien/:id
@@ -73,10 +73,42 @@ const deleteSinhvien = asyncHandler(async (req, res) => {
     .json({ message: `Delete sinh viên có id = ${req.params.id}` });
 });
 
+// @desc lấy danh sách sinh viên theo khoa
+// @route GET /khoa/:khoaId
+// @access public
+const getSinhviensByKhoa = asyncHandler(async (req, res) => {
+  const { khoaId } = req.body;
+  const sinhviens = await Sinhvien.find({ khoaId });
+  res
+    .status(200)
+    .json({ message: "lấy danh sách sinh viên theo khoa", sinhviens });
+});
+
+// @desc lấy danh sách sinh viên theo giang vien
+// @route GET /gianvien/:giangvienId
+// @access public
+const getSinhviensByGiangVien = asyncHandler(async (req, res) => {
+  const { giangvienId } = req.body;
+  const sinhviens = await Sinhvien.find({ giangvienId });
+  res
+    .status(200)
+    .json({ message: "lấy danh sách sinh viên theo giảng viên", sinhviens });
+});
+// @desc lấy sinh viên có maSV
+// @route GET /maSV/:maSV
+// @access private
+const getSinhviensByMaSV = asyncHandler(async (req, res) => {
+  const { maSV } = req.body;
+  const sinhvien = await Sinhvien.findOne({ maSV });
+  res.status(200).json({ message: "lấy sinh viên có maSV", sinhvien });
+});
 module.exports = {
   getSinhviens,
   createSinhvien,
   getSinhvien,
   updateSinhvien,
   deleteSinhvien,
+  getSinhviensByKhoa,
+  getSinhviensByGiangVien,
+  getSinhviensByMaSV,
 };
