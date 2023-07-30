@@ -23,9 +23,9 @@ const sinhvienSchema = mongoose.Schema(
       // required: true,
       ref: "Khoa",
     },
-    giangVienId: {
+    userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Giangvien",
+      ref: "User",
     },
   },
   {

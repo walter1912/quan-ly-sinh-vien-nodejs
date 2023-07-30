@@ -8,11 +8,11 @@ const {
   updateSinhvien,
   deleteSinhvien,
   getSinhviensByKhoa,
-  getSinhviensByGiangVien,
+  getSinhviensByUser,
   getSinhviensByMaSV,
 } = require("../controllers/sinhvienController");
 const validateToken = require("../middleware/validateTokenHandler");
-const { checkAuthen, checkAdmin } = require("../middleware/checkRole");
+const { checkAuthen, checkAdmin, checkSameUser } = require("../middleware/checkRole");
 
 routes.use(validateToken);
 
@@ -20,22 +20,23 @@ routes.use(validateToken);
 routes.route("/").get(getSinhviens);
 
 // - post '/': tạo mới sinh viên
-routes.route("/").post(validateToken, createSinhvien);
+routes.route("/").post(checkAuthen, createSinhvien);
 
-// - get '/:id': lấy sinh viên có id
+// + get '/:id': lấy sinh viên có id
 routes.route("/:id").get(getSinhvien);
 
-// - put '/:id': cập nhật sinh viên - cập nhật sinh viên
-routes.route("/:id").put(checkAuthen, updateSinhvien);
+// -? put '/:id': cập nhật sinh viên - cập nhật sinh viên
+// nếu không phải sinh viên đó thì mới checkAuthen
+routes.route("/:id").put(updateSinhvien);
 
 // - delete '/:id': xóa sinh viên có id
-routes.route("/:id").delete(checkAdmin, deleteSinhvien);
+routes.route("/:id").delete(checkAuthen, deleteSinhvien);
 
 // + get '/khoa/:khoaId': lấy danh sách sinh viên theo khoa
 routes.route("/khoa/:khoaId").get(getSinhviensByKhoa);
-// + get '/gianvien/:giangvienId': lấy danh sách sinh viên mà người dùng có giangvienId tạo
-routes.route("/gianvien/:giangvienId").get(getSinhviensByGiangVien);
-// - get '/maSV/:maSV': lấy sinh viên có maSV
+// + get '/user/:userId': lấy danh sách sinh viên mà người dùng có userId tạo
+routes.route("/user/:userId").get(getSinhviensByUser);
+// + get '/maSV/:maSV': lấy sinh viên có maSV
 routes.route("/maSV/:maSV").get(getSinhviensByMaSV);
 
 module.exports = routes;

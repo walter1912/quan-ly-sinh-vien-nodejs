@@ -65,7 +65,7 @@
     5. post
         + get '/':
         (không lấy content)
-        + get '/:userId':
+        + get 'user/:userId':
         + get '/:id':
         (
             admin và giảng viên mới post được,
