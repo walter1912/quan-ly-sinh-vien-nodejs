@@ -18,11 +18,10 @@ const userSchema = mongoose.Schema(
     },
     email: {
       type: String,
-      unique: [true, "Email đã được sử dụng"],
-      match: [
-        /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-        "Email không hợp lệ",
-      ],
+      // match: [
+      //   /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+      //   "Email không hợp lệ",
+      // ],
     },
   },
   {

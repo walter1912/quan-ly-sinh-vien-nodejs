@@ -5,31 +5,27 @@ const Giangvien = require("../models/Giangvien");
 // @route  GET /
 // @access public
 const getGiangviens = asyncHandler(async (req, res) => {
-  const giangviens = await Giangvien.find();
-  res.status(200).json({
-    message: "lấy danh sách giảng viên",
-    giangviens,
-  });
+  var giangviens = await Giangvien.find();
+ 
+  res.status(200).json(giangviens);
 });
 
 // @desc lấy danh sách giảng viên theo khoa
 // @route  GET /khoa/:khoaId
 // @access public
 const getGiangviensByKhoa = asyncHandler(async (req, res) => {
-  let khoaId = res.params.khoaId;
+  let khoaId = req.params.khoaId;
   const giangviens = await Giangvien.find({ khoaId });
-  res.status(200).json({
-    message: "lấy danh sách giảng viên theo khoa",
-    giangviens,
-  });
+  res.status(200).json(giangviens);
 });
 
 // @desc lấy danh sách giảng viên mà người dùng có userId tạo
 // @route  GET /user/:userId
 // @access public
 const getGiangviensByUser = asyncHandler(async (req, res) => {
-  let userId = res.params.userId;
+  let userId = req.params.userId;
   const giangviens = await Giangvien.find({ userId });
+
   res.status(200).json({
     message: "lấy danh sách giảng viên theo user",
     giangviens,
@@ -40,11 +36,15 @@ const getGiangviensByUser = asyncHandler(async (req, res) => {
 // @route  GET /maGV/:maGV
 // @access public
 const getGiangvienByMaGV = asyncHandler(async (req, res) => {
-  let maGV = res.params.maGV;
+  let maGV = req.params.maGV;
   const giangvien = await Giangvien.findOne({ maGV });
+  if (!giangvien) {
+    res.status(404);
+    throw new Error("Không tìm thấy giảng viên");
+  }
   res.status(200).json({
     message: "lấy giảng viên có maGV",
-    giangvien,
+    giangVien: giangvien,
   });
 });
 
@@ -52,7 +52,7 @@ const getGiangvienByMaGV = asyncHandler(async (req, res) => {
 // @route  GET /:id
 // @access public
 const getGiangvienById = asyncHandler(async (req, res) => {
-  const giangvien = await Giangvien.findById(res.params.id);
+  const giangvien = await Giangvien.findById(req.params.id);
   if (!giangvien) {
     res.status(404);
     throw new Error("Không tìm thấy giảng viên");

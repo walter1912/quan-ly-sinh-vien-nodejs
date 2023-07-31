@@ -12,10 +12,7 @@ const getPosts = asyncHandler(async (req, res) => {
     throw new Error("Không có bài viết nào");
   }
   let postResult = posts.map((post) => postToDto(post));
-  res.status(200).json({
-    message: "lấy danh sách post",
-    posts: postResult,
-  });
+  res.status(200).json(postResult);
 });
 
 // @desc
@@ -29,10 +26,7 @@ const getPostsByUser = asyncHandler(async (req, res) => {
     throw new Error("Không có bài viết nào");
   }
   let postResult = posts.map((post) => postToDto(post));
-  res.status(200).json({
-    message: "lấy danh sách post by user",
-    posts: postResult,
-  });
+  res.status(200).json(postResult);
 });
 
 // @desc
@@ -45,16 +39,14 @@ const getPostById = asyncHandler(async (req, res) => {
     res.status(404);
     throw new Error(`Không tìm thấy bài viết có id = ${id}`);
   }
-  res.status(200).json({
-    message: "Get post by id",
-    post,
-  });
+  res.status(200).json(postFixId(post));
 });
 
 // @desc
 // @route POST api/posts
 // @access private
 const createPost = asyncHandler(async (req, res) => {
+  console.log("createPost is running ...");
   const { thumbnail, title, content } = req.body;
   if (!thumbnail || !title || !content) {
     res.status(400);
@@ -67,10 +59,7 @@ const createPost = asyncHandler(async (req, res) => {
     content,
   };
   const post = await Post.create(dataPost);
-  res.status(201).json({
-    message: "Post bài viết",
-    post,
-  });
+  res.status(201).json(postToDto(post));
 });
 
 // @desc
@@ -91,7 +80,7 @@ const updatePost = asyncHandler(async (req, res) => {
       res.status(401);
       throw new Error("Hành động nguy hiểm, bạn không truy cập được");
     }
-  } 
+  }
   const { thumbnail, title, content } = req.body;
   if (!thumbnail || !title || !content) {
     res.status(400);
@@ -103,12 +92,12 @@ const updatePost = asyncHandler(async (req, res) => {
     title,
     content,
   };
-  const updated = await Post.findByIdAndUpdate(req.params.id, dataUpdate ,{
+  const updated = await Post.findByIdAndUpdate(req.params.id, dataUpdate, {
     new: true,
   });
-  
+
   res.status(201).json({
-    message: `Update bài viết bởi ${kt? req.user.username:"admin"}`,
+    message: `Update bài viết bởi ${kt ? req.user.username : "admin"}`,
     post: updated,
   });
 });
@@ -125,6 +114,18 @@ function postToDto(post) {
     title: post.title,
     userId: post.userId,
     createAt: post.createAt,
+  };
+  return postDto;
+}
+function postFixId(post) {
+  const postDto = {
+    id: post.id,
+    thumbnail: post.thumbnail,
+    title: post.title,
+    userId: post.userId,
+    content: post.content,
+    createAt: post.createAt,
+    upddateAt:post.upddateAt
   };
   return postDto;
 }

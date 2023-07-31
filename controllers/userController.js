@@ -8,8 +8,10 @@ const saltRounds = 10;
 // @route POST api/user/register
 // @access public
 const registerUser = asyncHandler(async (req, res) => {
-  const { username, password, role, email } = req.body;
-  if (!username || !password || !role || !email) {
+  console.log("registerUser");
+  const { username, password, role } = req.body;
+  console.log("req.body: ", req.body);
+  if (!username || !password || !role) {
     res.status(400);
     throw new Error("Có trường còn thiếu");
   }
@@ -18,23 +20,27 @@ const registerUser = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error("Username bị trùng");
   }
-  const emailExisted = await User.findOne({ email });
-  if (emailExisted) {
-    res.status(400);
-    throw new Error("email bị trùng");
-  }
+  // const emailExisted = await User.findOne({ email });
+  // if (emailExisted) {
+  //   res.status(400);
+  //   throw new Error("email bị trùng");
+  // }
   //   hash password
   const hashedPassword = await bcrypt.hash(password, saltRounds);
   const user = await User.create({
     username,
     password: hashedPassword,
-    email,
     role,
   });
   if (user) {
-    res
-      .status(201)
-      .json({ message: "register user", _id: user.id, email: user.email });
+    res.status(201).json({
+      mes: "register user",
+      user: {
+        id: user.id,
+        username: user.username,
+        role: user.role,
+      },
+    });
   } else {
     res.status(400);
     throw new Error("Invalid value user");
@@ -63,7 +69,6 @@ const loginUser = asyncHandler(async (req, res) => {
           user: {
             username: userExisted.username,
             role: userExisted.role,
-            email: userExisted.email,
             id: userExisted.id,
           },
         },
@@ -72,7 +77,14 @@ const loginUser = asyncHandler(async (req, res) => {
           expiresIn: "1h",
         }
       );
-      res.status(200).json({ accessToken });
+      res.status(200).json({
+        accessToken,
+        user: {
+          username: userExisted.username,
+          role: userExisted.role,
+          id: userExisted.id,
+        },
+      });
     } else {
       res.status(401);
       throw new Error("Sai mật khẩu");
@@ -84,11 +96,26 @@ const loginUser = asyncHandler(async (req, res) => {
 // @route GET api/user/current
 // @access private
 const currentUser = asyncHandler(async (req, res) => {
-  res.status(200).json({ message: "current user" , user: req.user});
+  res.status(200).json({ mes: "current user", user: req.user });
+});
+
+const getUserById = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.params.id);
+  if (!user) {
+    res.status(404);
+    throw new Error("Khoong tim thay user");
+  }
+  const result = {
+    id: user.id,
+    username: user.username,
+    role: user.role,
+  }
+  res.status(200).json(result);
 });
 
 module.exports = {
   registerUser,
   loginUser,
   currentUser,
+  getUserById,
 };

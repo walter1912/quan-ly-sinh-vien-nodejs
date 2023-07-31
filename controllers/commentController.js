@@ -11,9 +11,10 @@ const getCommentsByPost = asyncHandler(async (req, res) => {
     res.status(404);
     throw new Error("Khoong tim thay cmt trong bai viet");
   }
+  let result = comments.map((cmt) => dataToDto(cmt));
   res.status(200).json({
     message: `${req.user.username} lay danh sach cmt by ${postId}`,
-    comments,
+    comments: result,
   });
 });
 // @desc lấy  comment by id
@@ -35,7 +36,7 @@ const getCommentById = asyncHandler(async (req, res) => {
 // @access public
 const createComment = asyncHandler(async (req, res) => {
   const { postId, repCommentId, content, level } = req.body;
-  if (!postId || !repCommentId || !content || !level) {
+  if (!postId || !content) {
     res.status(400);
     throw new Error("Có trường chưa nhập");
   }
@@ -57,9 +58,22 @@ const createComment = asyncHandler(async (req, res) => {
 // @access public
 const updateComment = asyncHandler(async (req, res) => {});
 
+function dataToDto(cmt) {
+  const { postId, repCommentId, content, level, createAt, updateAt } = cmt;
+  let cmtDto = {
+    id: cmt.id,
+    postId,
+    repCommentId,
+    content,
+    level,
+    createAt,
+    updateAt,
+  };
+  return cmtDto;
+}
 module.exports = {
   getCommentsByPost,
   getCommentById,
   createComment,
-  updateComment
+  updateComment,
 };

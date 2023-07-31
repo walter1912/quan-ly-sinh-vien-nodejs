@@ -20,8 +20,8 @@ const commentSchema = mongoose.Schema(
       ref: "User",
     },
     repCommentId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Comment",
+      type: String,
+      // ref: "Comment",
     },
     content: {
       type: String,

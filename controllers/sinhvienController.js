@@ -1,13 +1,16 @@
 const asyncHandler = require("express-async-handler");
 const Sinhvien = require("../models/Sinhvien");
+const Khoa = require("../models/Khoa");
 // @desc
 // @route GET api/sinhviens
 // @access private
 const getSinhviens = asyncHandler(async (req, res) => {
   const sinhviens = await Sinhvien.find();
-  res
-    .status(200)
-    .json({ message: `Get all sinh viên bởi ${req.user.username}`, sinhviens });
+  for (let i = 0; i < sinhviens.length; i++) {
+    let khoa = await Khoa.findById(sinhviens[i].khoaId);
+    sinhviens[i].tenKhoa = khoa.ten;
+  }
+  res.status(200).json(sinhviens);
 });
 
 // @desc
@@ -15,8 +18,8 @@ const getSinhviens = asyncHandler(async (req, res) => {
 // @access private
 const createSinhvien = asyncHandler(async (req, res) => {
   console.log("Request body: ", req.body);
-  const { tenSV, maSV, ngaySinh, gioiTinh } = req.body;
-  if (!tenSV || !maSV || !ngaySinh || !gioiTinh) {
+  const { tenSV, maSV, ngaySinh, gioiTinh, khoaId } = req.body;
+  if (!tenSV || !maSV || !ngaySinh || !gioiTinh || !khoaId) {
     res.status(400);
     throw new Error("Cần phải điền vào tất cả các field");
   }
@@ -26,10 +29,9 @@ const createSinhvien = asyncHandler(async (req, res) => {
     maSV,
     ngaySinh,
     gioiTinh,
+    khoaId,
   });
-  res
-    .status(201)
-    .json({ message: `Post sinh viên bởi ${req.user.username}`, sinhvien });
+  res.status(201).json(sinhvien);
 });
 // @desc
 // @route GET api/sinhviens/:id
@@ -42,7 +44,10 @@ const getSinhvien = asyncHandler(async (req, res) => {
   }
   res
     .status(200)
-    .json({ message: `Get sinh viên có id = ${req.params.id}`, sinhvien });
+    .json({
+      message: `Get sinh viên có id = ${req.params.id}`,
+      sinhVien: sinhvien,
+    });
 });
 // @desc
 // @route PUT api/sinhviens/:id
@@ -71,13 +76,14 @@ const updateSinhvien = asyncHandler(async (req, res) => {
   } else {
     who = `user  ${req.user.username} updating`;
   }
-  const { tenSV, maSV, ngaySinh, gioiTinh } = req.body;
+  const { tenSV, maSV, ngaySinh, gioiTinh, khoaId } = req.body;
   const dataUpdate = {
     userId: sinhvienExisted.userId,
     tenSV,
     maSV,
     ngaySinh,
     gioiTinh,
+    khoaId,
   };
   const updated = await Sinhvien.findByIdAndUpdate(req.params.id, dataUpdate, {
     new: true,
@@ -98,11 +104,9 @@ const deleteSinhvien = asyncHandler(async (req, res) => {
   }
 
   await Sinhvien.findByIdAndRemove(req.params.id);
-  res
-    .status(200)
-    .json({
-      message: `Delete sinh viên có id = ${req.params.id} bởi ${req.user.username}`,
-    });
+  res.status(200).json({
+    message: `Delete sinh viên có id = ${req.params.id} bởi ${req.user.username}`,
+  });
 });
 
 // @desc lấy danh sách sinh viên theo khoa
@@ -132,7 +136,13 @@ const getSinhviensByUser = asyncHandler(async (req, res) => {
 const getSinhviensByMaSV = asyncHandler(async (req, res) => {
   const maSV = req.params.maSV;
   const sinhvien = await Sinhvien.findOne({ maSV });
-  res.status(200).json({ message: "lấy sinh viên có maSV", sinhvien });
+  if (!sinhvien) {
+    res.status(404);
+    throw new Error("Không tìm thấy sinh viên");
+  }
+  res
+    .status(200)
+    .json({ message: "lấy sinh viên có maSV", sinhVien: sinhvien });
 });
 
 module.exports = {

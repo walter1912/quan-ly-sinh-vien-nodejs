@@ -6,10 +6,7 @@ const Khoa = require("../models/Khoa");
 // @access public
 const getKhoas = asyncHandler(async (req, res) => {
   const khoas = await Khoa.find();
-  res.status(200).json({
-    message: "lấy danh sách khoa",
-    khoas,
-  });
+  res.status(200).json(khoas);
 });
 
 // @desc chi tiết khoa
