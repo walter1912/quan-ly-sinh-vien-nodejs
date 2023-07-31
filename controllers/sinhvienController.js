@@ -1,28 +1,42 @@
 const asyncHandler = require("express-async-handler");
 const Sinhvien = require("../models/Sinhvien");
 const Khoa = require("../models/Khoa");
+const User = require("../models/User");
 // @desc
 // @route GET api/sinhviens
 // @access private
 const getSinhviens = asyncHandler(async (req, res) => {
   const sinhviens = await Sinhvien.find();
-  for (let i = 0; i < sinhviens.length; i++) {
-    let khoa = await Khoa.findById(sinhviens[i].khoaId);
-    sinhviens[i].tenKhoa = khoa.ten;
+  if (!sinhviens) {
+    res.status(404);
+    throw new Error("Không tìm thấy sinh viên!");
   }
-  res.status(200).json(sinhviens);
+  const result = sinhviens.map((sv) => dataToDto(sv));
+  let message = "Lấy tất cả sinh viên thành công";
+  if (result.length < 1) {
+    message = "Danh sách sinh viên rỗng!";
+  }
+  res.status(200).json({
+    message,
+    sinhviens: result,
+  });
 });
 
 // @desc
 // @route POST api/sinhviens
 // @access private
 const createSinhvien = asyncHandler(async (req, res) => {
-  console.log("Request body: ", req.body);
   const { tenSV, maSV, ngaySinh, gioiTinh, khoaId } = req.body;
   if (!tenSV || !maSV || !ngaySinh || !gioiTinh || !khoaId) {
     res.status(400);
-    throw new Error("Cần phải điền vào tất cả các field");
+    throw new Error("Cần phải điền vào tất cả các trường!");
   }
+  const maExisted = await Sinhvien.findOne({ maSV });
+  if (maExisted) {
+    res.status(400);
+    throw new Error("Mã sinh viên bị trùng!");
+  }
+
   const sinhvien = await Sinhvien.create({
     userId: req.user.id,
     tenSV,
@@ -31,32 +45,38 @@ const createSinhvien = asyncHandler(async (req, res) => {
     gioiTinh,
     khoaId,
   });
-  res.status(201).json(sinhvien);
+  const result = dataToDto(sinhvien);
+  res.status(201).json({
+    message: `Tạo thành công sinh viên ${sinhvien.tenSV}`,
+    sinhvien: result,
+  });
 });
 // @desc
 // @route GET api/sinhviens/:id
 // @access private
-const getSinhvien = asyncHandler(async (req, res) => {
-  const sinhvien = await Sinhvien.findById(req.params.id);
+const getSinhvienById = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const sinhvien = await Sinhvien.findById(id);
   if (!sinhvien) {
     res.status(404);
-    throw new Error("Sinh viên not found");
+    throw new Error("Không tìm thấy sinh viên!");
   }
-  res
-    .status(200)
-    .json({
-      message: `Get sinh viên có id = ${req.params.id}`,
-      sinhVien: sinhvien,
-    });
+  const result = dataToDto(sinhvien);
+  res.status(200).json({
+    message: `Lấy thành công thông tin sinh viên ${sinhvien.tenSV}`,
+    sinhvien: result,
+  });
 });
 // @desc
 // @route PUT api/sinhviens/:id
 // @access private
 const updateSinhvien = asyncHandler(async (req, res) => {
-  const sinhvienExisted = await Sinhvien.findById(req.params.id);
+  const { id } = req.params;
+
+  const sinhvienExisted = await Sinhvien.findById(id);
   if (!sinhvienExisted) {
     res.status(404);
-    throw new Error("Sinh viên not found");
+    throw new Error("Không tìm thấy sinh viên!");
   }
   // check xem co duoc cap nhat hay khong
   let kt = sinhvienExisted.userId == req.user.id;
@@ -64,48 +84,54 @@ const updateSinhvien = asyncHandler(async (req, res) => {
   if (kt === false) {
     kt = sinhvienExisted.maSV == req.user.username;
     if (kt === false) {
-      console.log("kt = false => checkAdmin");
       if (req.user.role !== 1912 || req.user.username !== "eimron") {
-        res.status(401);
-        throw new Error("Hành động nguy hiểm, bạn không truy cập được");
+        res.status(403);
+        throw new Error("Bạn không được chỉnh sửa sinh viên này!");
       }
-      who = `admin updating`;
+      who = `Admin`;
     } else {
-      who = `sinhvien  ${sinhvienExisted.tenSV} updating`;
+      who = `Sinh viên  ${sinhvienExisted.tenSV}`;
     }
   } else {
-    who = `user  ${req.user.username} updating`;
+    who = `${req.user.username}`;
   }
-  const { tenSV, maSV, ngaySinh, gioiTinh, khoaId } = req.body;
+  // check mã sinh viên
+  const existed = dataToDto(sinhvienExisted);
+  const { maSV } = req.body;
+  let mes = "";
+  if (maSV && maSV !== existed.maSV) {
+    mes = ", không được thay đổi mã sinh viên";
+  }
   const dataUpdate = {
-    userId: sinhvienExisted.userId,
-    tenSV,
-    maSV,
-    ngaySinh,
-    gioiTinh,
-    khoaId,
+    ...existed,
+    ...req.body,
+    maSV: existed.maSV,
   };
-  const updated = await Sinhvien.findByIdAndUpdate(req.params.id, dataUpdate, {
+  const updated = await Sinhvien.findByIdAndUpdate(id, dataUpdate, {
     new: true,
   });
-  res.status(201).json({
-    message: `Update sinh viên có id = ${req.params.id} bởi ${req.user.username} , ${who}`,
-    sinhvien: updated,
+  const result = dataToDto(updated);
+  res.status(200).json({
+    message: `${who} cập nhật thông tin sinh viên thành công${mes}`,
+    sinhvien: result,
   });
 });
 // @desc
 // @route DELETE api/sinhviens/:id
 // @access private
 const deleteSinhvien = asyncHandler(async (req, res) => {
-  const sinhvien = await Sinhvien.findById(req.params.id);
+  const {id} = req.params;
+  const sinhvien = await Sinhvien.findById(id);
   if (!sinhvien) {
     res.status(404);
-    throw new Error("Sinh viên not found");
+    throw new Error("Không tìm thấy sinh viên!");
   }
 
-  await Sinhvien.findByIdAndRemove(req.params.id);
+  const deleted = await Sinhvien.findByIdAndRemove(id);
+  const result = dataToDto(deleted);
   res.status(200).json({
-    message: `Delete sinh viên có id = ${req.params.id} bởi ${req.user.username}`,
+    message: `Xóa thành công sinh viên ${sinhvien.ten}`,
+    sinhvien: result,
   });
 });
 
@@ -113,11 +139,22 @@ const deleteSinhvien = asyncHandler(async (req, res) => {
 // @route GET /khoa/:khoaId
 // @access public
 const getSinhviensByKhoa = asyncHandler(async (req, res) => {
-  const khoaId = req.params.khoaId;
+  const { khoaId } = req.params;
   const sinhviens = await Sinhvien.find({ khoaId });
-  res
-    .status(200)
-    .json({ message: "lấy danh sách sinh viên theo khoa", sinhviens });
+  if (!sinhviens) {
+    res.status(404);
+    throw new Error("Không tìm thấy sinh viên!");
+  }
+  const result = sinhviens.map((sv) => dataToDto(sv));
+  const khoa = await Khoa.findById(khoaId);
+  let message = `Lấy các sinh viên của khoa ${khoa.ten} thành công`;
+  if (result.length < 1) {
+    message = `Khoa ${khoa.ten} hiện tại chưa có sinh viên nào!`;
+  }
+  res.status(200).json({
+    message,
+    sinhviens: result,
+  });
 });
 
 // @desc lấy danh sách sinh viên theo giang vien
@@ -126,29 +163,66 @@ const getSinhviensByKhoa = asyncHandler(async (req, res) => {
 const getSinhviensByUser = asyncHandler(async (req, res) => {
   const userId = req.params.userId;
   const sinhviens = await Sinhvien.find({ userId });
-  res
-    .status(200)
-    .json({ message: "lấy danh sách sinh viên theo giảng viên", sinhviens });
+  if (!sinhviens) {
+    res.status(404);
+    throw new Error("Không tìm thấy sinh viên!");
+  }
+  const result = sinhviens.map((sv) => dataToDto(sv));
+  const user = await User.findById(userId);
+  let message = `Lấy các sinh viên do ${user.username} tạo thành công`;
+  if (result.length < 1) {
+    message = `${user.username} hiện tại chưa tạo sinh viên nào!`;
+  }
+  res.status(200).json({
+    message,
+    sinhviens: result,
+  });
 });
 // @desc lấy sinh viên có maSV
 // @route GET /maSV/:maSV
 // @access public
 const getSinhviensByMaSV = asyncHandler(async (req, res) => {
-  const maSV = req.params.maSV;
+  let { maSV } = req.params;
   const sinhvien = await Sinhvien.findOne({ maSV });
   if (!sinhvien) {
     res.status(404);
-    throw new Error("Không tìm thấy sinh viên");
+    throw new Error(`Không tìm thấy sinh viên có mã ${maSV}!`);
   }
-  res
-    .status(200)
-    .json({ message: "lấy sinh viên có maSV", sinhVien: sinhvien });
+  const result = dataToDto(sinhvien);
+  res.status(200).json({
+    message: `Lấy thành công thông tin sinh viên có mã ${maSV}`,
+    sinhvien: result,
+  });
 });
 
+function dataToDto(ele) {
+  const {
+    userId,
+    tenSV,
+    maSV,
+    ngaySinh,
+    gioiTinh,
+    khoaId,
+    createAt,
+    updateAt,
+  } = ele;
+  var dto = {
+    id: ele.id,
+    userId,
+    tenSV,
+    maSV,
+    ngaySinh,
+    gioiTinh,
+    khoaId,
+    createAt,
+    updateAt,
+  };
+  return dto;
+}
 module.exports = {
   getSinhviens,
   createSinhvien,
-  getSinhvien,
+  getSinhvien: getSinhvienById,
   updateSinhvien,
   deleteSinhvien,
   getSinhviensByKhoa,

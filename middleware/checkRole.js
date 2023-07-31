@@ -34,10 +34,10 @@ const checkSameUser = asyncHandler(async (req, res, next) => {
     res.status(401);
     throw new Error("Bạn chưa đăng nhập");
   }
-  if (req.user.role === 1912 && req.user.username === "eimron") {
+  if (req.user.role === 1912 && req.user.username == "eimron") {
     next();
   }
-  if (req.user.id === req.params.id) {
+  else if (req.user.id === req.params.id) {
     next();
   } else {
     res.status(401);

@@ -75,11 +75,11 @@ const getGiangvienByMaGV = asyncHandler(async (req, res) => {
   const giangvien = await Giangvien.findOne({ maGV });
   if (!giangvien) {
     res.status(404);
-    throw new Error(`Không tìm thấy giảng viên có mã ${maGV}`);
+    throw new Error(`Không tìm thấy giảng viên có mã ${maGV}!`);
   }
   const result = dataToDto(giangvien);
   res.status(200).json({
-    message: `Lấy thành công thông tin giảng viên có ${maGV}`,
+    message: `Lấy thành công thông tin giảng viên có mã ${maGV}`,
     giangvien: result,
   });
 });
@@ -110,6 +110,11 @@ const createGiangvien = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error("Cần phải điền vào tất cả các trường!");
   }
+  const maExisted = await Giangvien.findOne({ maGV });
+  if (maExisted) {
+    res.status(400);
+    throw new Error("Mã giảng viên bị trùng!");
+  }
   const giangvien = await Giangvien.create({
     userId: req.user.id,
     tenGV,
@@ -137,8 +142,9 @@ const updateGiangvien = asyncHandler(async (req, res) => {
   }
   const result = dataToDto(giangvien);
   // không được chỉnh sửa mã giảng viên
-  const { maGV } = res.body;
+  const { maGV } = req.body;
   let mes = "";
+  
   if (maGV && maGV !== giangvien.maGV) {
     mes = ", không được thay đổi mã giảng viên";
   }

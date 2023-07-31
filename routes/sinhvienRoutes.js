@@ -12,7 +12,7 @@ const {
   getSinhviensByMaSV,
 } = require("../controllers/sinhvienController");
 const validateToken = require("../middleware/validateTokenHandler");
-const { checkAuthen, checkAdmin, checkSameUser } = require("../middleware/checkRole");
+const { checkAuthen } = require("../middleware/checkRole");
 
 routes.use(validateToken);
 
