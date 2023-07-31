@@ -12,12 +12,12 @@ const registerUser = asyncHandler(async (req, res) => {
   const { username, password, role } = req.body;
   if (!username || !password || !role) {
     res.status(400);
-    throw new Error("Có trường còn thiếu");
+    throw new Error("Có trường còn thiếu!");
   }
   const usernameExisted = await User.findOne({ username });
   if (usernameExisted) {
     res.status(400);
-    throw new Error("Username bị trùng");
+    throw new Error("Username bị trùng!");
   }
   // const emailExisted = await User.findOne({ email });
   // if (emailExisted) {
@@ -33,7 +33,7 @@ const registerUser = asyncHandler(async (req, res) => {
   });
   if (user) {
     res.status(201).json({
-      message: "Đăng ký user thành công!",
+      message: "Đăng ký user thành công",
       user: {
         id: user.id,
         username: user.username,
@@ -42,7 +42,7 @@ const registerUser = asyncHandler(async (req, res) => {
     });
   } else {
     res.status(400);
-    throw new Error("Invalid value user");
+    throw new Error("Invalid value user!");
   }
 });
 
@@ -53,13 +53,13 @@ const loginUser = asyncHandler(async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) {
     res.status(400);
-    throw new Error("Có trường còn thiếu");
+    throw new Error("Có trường còn thiếu!");
   }
   // json web token
   const userExisted = await User.findOne({ username });
   if (!userExisted) {
     res.status(401);
-    throw new Error("User không tồn tại");
+    throw new Error("User không tồn tại!");
   } else {
     if (await bcrypt.compare(password, userExisted.password)) {
       // tạo accessToken
@@ -87,7 +87,7 @@ const loginUser = asyncHandler(async (req, res) => {
       });
     } else {
       res.status(401);
-      throw new Error("Sai mật khẩu");
+      throw new Error("Sai mật khẩu!");
     }
   }
 });
@@ -96,7 +96,7 @@ const loginUser = asyncHandler(async (req, res) => {
 // @route GET api/user/current
 // @access public
 const currentUser = asyncHandler(async (req, res) => {
-  res.status(200).json({ message: "Lấy thành công thông tin user hiện tại!", user: req.user });
+  res.status(200).json({ message: "Lấy thành công thông tin user hiện tại", user: req.user });
 });
 
 // @desc get infor user
@@ -115,7 +115,7 @@ const getUserById = asyncHandler(async (req, res) => {
     role: user.role,
   }
   res.status(200).json({
-    message: ` Lấy thành công thông tin của ${user.username}!`,
+    message: ` Lấy thành công thông tin của ${user.username}`,
     user: result
   });
 });

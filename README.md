@@ -105,6 +105,6 @@
     - không trả về dữ liệu có _id và _v. 
     - ở mỗi controller có 1 hàm dataToDto để convert từ _id thành id 
     và các yêu cầu khác khi trả về ở mỗi API. 
-    - khi lấy biến từ req.params => lấy theo kiểu destructoring.
+    - khi lấy biến từ req.params => lấy theo kiểu destructoring dùng const.
 
     - luôn có phần check status(404) sau khi lấy dữ liệu từ mongoDb.
