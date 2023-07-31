@@ -84,7 +84,7 @@
         - put '/:id'
 
 
-### Code my format
+### my format code
 #### response - server trả về
     1. res.status 
         trả về mã lỗi để FE biết để fix/handle lỗi

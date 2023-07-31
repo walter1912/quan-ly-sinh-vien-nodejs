@@ -1,32 +1,49 @@
 const asyncHandler = require("express-async-handler");
 const Post = require("../models/Post");
 const { checkAdmin } = require("../middleware/checkRole");
+const User = require("../models/User");
 
 // @desc
 // @route GET api/posts
 // @access public
 const getPosts = asyncHandler(async (req, res) => {
   const posts = await Post.find();
-  if (posts.length < 1) {
+  if (!posts) {
     res.status(404);
-    throw new Error("Không có bài viết nào");
+    throw new Error("Không tìm thấy bài viết nào!");
   }
-  let postResult = posts.map((post) => postToDto(post));
-  res.status(200).json(postResult);
+  const result = posts.map((p) => dataToDto(p));
+  let message = "Lấy tất cả bài viết thành công";
+  if (result.length < 1) {
+    message = "Danh sách bài viết rỗng!";
+  }
+  res.status(200).json({
+    message,
+    posts: result,
+  });
 });
 
 // @desc
 // @route GET api/posts/user/:userId
 // @access public
 const getPostsByUser = asyncHandler(async (req, res) => {
-  const userId = req.params.userId;
+  const { userId } = req.params;
   const posts = await Post.find({ userId });
-  if (posts.length < 1) {
+
+  if (!posts) {
     res.status(404);
-    throw new Error("Không có bài viết nào");
+    throw new Error(`Không tìm thấy bài viết nào!`);
   }
-  let postResult = posts.map((post) => postToDto(post));
-  res.status(200).json(postResult);
+  const user = await User.findById(userId);
+  const result = posts.map((p) => dataToDto(p));
+  let message = `Lấy tất cả bài viết của ${user.username} thành công`;
+  if (result.length < 1) {
+    message = "${user.username} chưa tạo bài viết nào!";
+  }
+  res.status(200).json({
+    message,
+    posts: result,
+  });
 });
 
 // @desc
@@ -37,9 +54,13 @@ const getPostById = asyncHandler(async (req, res) => {
   const post = await Post.findById(id);
   if (!post) {
     res.status(404);
-    throw new Error(`Không tìm thấy bài viết có id = ${id}`);
+    throw new Error(`Không tìm thấy bài viết!`);
   }
-  res.status(200).json(postFixId(post));
+  const result = dataToDto(post);
+  res.status(200).json({
+    message: "Lấy thành công thông tin bài viết",
+    post: result,
+  });
 });
 
 // @desc
@@ -50,7 +71,7 @@ const createPost = asyncHandler(async (req, res) => {
   const { thumbnail, title, content } = req.body;
   if (!thumbnail || !title || !content) {
     res.status(400);
-    throw new Error("Có trường chưa nhập");
+    throw new Error("Bài viết có trường chưa nhập!");
   }
   const dataPost = {
     userId: req.user.id,
@@ -59,7 +80,11 @@ const createPost = asyncHandler(async (req, res) => {
     content,
   };
   const post = await Post.create(dataPost);
-  res.status(201).json(postToDto(post));
+  const result = postToDto(post);
+  res.status(201).json({
+    message: "Tạo bài viết thành công",
+    post: result,
+  });
 });
 
 // @desc
@@ -67,24 +92,27 @@ const createPost = asyncHandler(async (req, res) => {
 // @access private
 const updatePost = asyncHandler(async (req, res) => {
   // check
-  const id = req.params.id;
+  const { id } = req.params;
   const postExisted = await Post.findById(id);
   if (!postExisted) {
     res.status(404);
-    throw new Error(`Không tìm thấy bài viết có id = ${id}`);
+    throw new Error(`Không tìm thấy bài viết!`);
   }
   let kt = req.user.id == postExisted.userId;
+  let who = `${req.user.username}`;
   if (kt === false) {
+    who = "admin";
     console.log("kt = false => checkAdmin");
     if (req.user.role !== 1912 || req.user.username !== "eimron") {
-      res.status(401);
-      throw new Error("Hành động nguy hiểm, bạn không truy cập được");
+      who = "no one";
+      res.status(403);
+      throw new Error("Bạn không có quyền chỉnh sửa bài viết này!");
     }
   }
   const { thumbnail, title, content } = req.body;
   if (!thumbnail || !title || !content) {
     res.status(400);
-    throw new Error("Có trường chưa nhập");
+    throw new Error("Có trường chưa nhập!");
   }
   const dataUpdate = {
     userId: postExisted.userId,
@@ -92,13 +120,13 @@ const updatePost = asyncHandler(async (req, res) => {
     title,
     content,
   };
-  const updated = await Post.findByIdAndUpdate(req.params.id, dataUpdate, {
+  const updated = await Post.findByIdAndUpdate(id, dataUpdate, {
     new: true,
   });
-
+  const result = postFixId(updated);
   res.status(201).json({
-    message: `Update bài viết bởi ${kt ? req.user.username : "admin"}`,
-    post: updated,
+    message: `Cập nhật thành công bài viết bởi ${who}`,
+    post: result,
   });
 });
 
@@ -120,12 +148,12 @@ function postToDto(post) {
 function postFixId(post) {
   const postDto = {
     id: post.id,
-    thumbnail: post.thumbnail,
     title: post.title,
     userId: post.userId,
     content: post.content,
     createAt: post.createAt,
-    upddateAt:post.upddateAt
+    upddateAt: post.upddateAt,
+    thumbnail: post.thumbnail,
   };
   return postDto;
 }

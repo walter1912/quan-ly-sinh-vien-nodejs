@@ -6,21 +6,35 @@ const Khoa = require("../models/Khoa");
 // @access public
 const getKhoas = asyncHandler(async (req, res) => {
   const khoas = await Khoa.find();
-  res.status(200).json(khoas);
+  if (!khoas) {
+    res.status(404);
+    throw new Error("Không tìm thấy khoa!");
+  }
+  const result = khoas.map((k) => dataToDto(k));
+  let message = "Lấy tất cả khoa thành công";
+  if (result.length < 1) {
+    message = "Danh sách khoa rỗng!";
+  }
+  res.status(200).json({
+    message,
+    khoas: result,
+  });
 });
 
 // @desc chi tiết khoa
 // @route  GET /:id
 // @access public
 const getKhoaById = asyncHandler(async (req, res) => {
-  const khoa = await Khoa.findById(req.params.id);
+  const { id } = req.params;
+  const khoa = await Khoa.findById(id);
   if (!khoa) {
     res.status(404);
-    throw new Error("Không tìm thấy khoa");
+    throw new Error("Không tìm thấy khoa!");
   }
+  const result = dataToDto(khoa);
   res.status(200).json({
-    message: "chi tiết khoa",
-    khoa,
+    message: `Lấy thành công thông tin khoa ${khoa.ten}`,
+    khoa: result,
   });
 });
 
@@ -32,15 +46,17 @@ const createKhoa = asyncHandler(async (req, res) => {
 
   if (!ten) {
     res.status(400);
-    throw new Error("Cần phải điền vào tất cả các field");
+    throw new Error("Cần phải điền tên khoa!");
   }
   const khoa = await Khoa.create({
     userId: req.user.id,
     ten,
   });
+  const result = dataToDto(khoa);
+
   res.status(201).json({
-    message: "tạo khoa",
-    khoa,
+    message: `Tạo thành công khoa ${ten}`,
+    khoa: result,
   });
 });
 
@@ -48,19 +64,22 @@ const createKhoa = asyncHandler(async (req, res) => {
 // @route  UPDATE /:id
 // @access private
 const updateKhoa = asyncHandler(async (req, res) => {
-  const khoa = await Khoa.findById(req.params.id);
+  const { id } = req.params;
+
+  const khoa = await Khoa.findById(id);
   if (!khoa) {
     res.status(404);
-    throw new Error("Không tìm thấy khoa");
+    throw new Error("Không tìm thấy khoa!");
   }
   const dataUpdate = {
     ...khoa,
     ten: req.body.ten,
   };
-  const khoaUpdated = await Khoa.findByIdAndUpdate(req.params.id, dataUpdate);
-  res.status(201).json({
-    message: "chỉnh sửa  khoa",
-    khoa: khoaUpdated,
+  const updated = await Khoa.findByIdAndUpdate(id, dataUpdate, { new: true });
+  const result = dataToDto(updated);
+  res.status(200).json({
+    message: `Chỉnh sửa khoa ${khoa.ten} thành công`,
+    khoa: result,
   });
 });
 
@@ -68,18 +87,24 @@ const updateKhoa = asyncHandler(async (req, res) => {
 // @route  DELETE /:id
 // @access private
 const deleteKhoa = asyncHandler(async (req, res) => {
-  const khoa = await Khoa.findById(req.params.id);
+  const { id } = req.params;
+  const khoa = await Khoa.findById(id);
   if (!khoa) {
     res.status(404);
     throw new Error("Không tìm thấy khoa");
   }
-  const deleted = await Khoa.findByIdAndRemove(req.params.id);
-  res.status(201).json({
-    message: "xóa khoa",
-    khoa: deleted,
+  const deleted = await Khoa.findByIdAndRemove(id);
+  const result = dataToDto(deleted);
+  res.status(200).json({
+    message:  `Xóa khoa ${khoa.ten} thành công`,
+    khoa: result,
   });
 });
-
+function dataToDto(ele) {
+  const { ten } = ele;
+  const dto = { id: ele.id, ten };
+  return dto;
+}
 module.exports = {
   getKhoas,
   getKhoaById,

@@ -5,15 +5,19 @@ const Comment = require("../models/Comment");
 // @route  GET '/post/:postId'
 // @access public
 const getCommentsByPost = asyncHandler(async (req, res) => {
-  const postId = req.params.postId;
+  const { postId } = req.params;
   const comments = await Comment.find({ postId });
   if (!comments) {
     res.status(404);
-    throw new Error("Khoong tim thay cmt trong bai viet");
+    throw new Error("Không tìm thấy comment trong bài viết này!");
   }
   let result = comments.map((cmt) => dataToDto(cmt));
+  let message = `Lấy danh sách comment thành công`;
+  if (result.length < 1) {
+    message = "Chưa có ai comment vào bài viết này";
+  }
   res.status(200).json({
-    message: `${req.user.username} lay danh sach cmt by ${postId}`,
+    message,
     comments: result,
   });
 });
@@ -24,11 +28,12 @@ const getCommentById = asyncHandler(async (req, res) => {
   const comment = await Comment.findById(req.params.id);
   if (!comment) {
     res.status(404);
-    throw new Error("Khoong tim thay cmt");
+    throw new Error("Không tìm thấy comment!");
   }
+  const result = dataToDto(comment);
   res.status(200).json({
-    message: `${req.user.username} lay cmt`,
-    comment,
+    message: `Lấy comment thành công`,
+    comment: result,
   });
 });
 // @desc create comment
@@ -38,19 +43,21 @@ const createComment = asyncHandler(async (req, res) => {
   const { postId, repCommentId, content, level } = req.body;
   if (!postId || !content) {
     res.status(400);
-    throw new Error("Có trường chưa nhập");
+    throw new Error("Có trường chưa nhập!");
   }
-  const dataComment = {
+  const dataPost = {
     userId: req.user.id,
     postId,
     repCommentId,
     content,
     level,
   };
-  const comment = await Comment.create(dataComment);
+  const comment = await Comment.create(dataPost);
+  const result = dataToDto(comment);
+
   res.status(201).json({
-    message: `${req.user.username} create cmt`,
-    comment,
+    message: `${req.user.username} đã comment`,
+    comment: result,
   });
 });
 // @desc update comment
