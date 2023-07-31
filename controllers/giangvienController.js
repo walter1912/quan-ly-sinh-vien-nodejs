@@ -6,7 +6,10 @@ const Giangvien = require("../models/Giangvien");
 // @access public
 const getGiangviens = asyncHandler(async (req, res) => {
   var giangviens = await Giangvien.find();
- 
+  if(!giangviens) {
+    res.status(404);
+    throw new Error('Không tìm thấy giảng viên')
+  }
   res.status(200).json(giangviens);
 });
 
@@ -99,7 +102,9 @@ const updateGiangvien = asyncHandler(async (req, res) => {
     ...giangvien,
     ...req.body,
   };
-  const updated = await Giangvien.findByIdAndUpdate(req.params.id, dataUpdate);
+  const updated = await Giangvien.findByIdAndUpdate(req.params.id, dataUpdate, {
+    new: true,
+  });
   res.status(201).json({
     message: "chỉnh sửa giảng viên",
     giangvien: updated,
@@ -123,6 +128,11 @@ const deleteGiangvien = asyncHandler(async (req, res) => {
   });
 });
 
+function dataToDto(ele) {
+  const { userId, tenGV, maGV, ngaySinh, gioiTinh, khoaId, createAt, updateAt } = ele;
+  var dto = {id: ele.id,userId, tenGV, maGV, ngaySinh, gioiTinh, khoaId, createAt, updateAt };
+  return dto;
+}
 module.exports = {
   getGiangviens,
   getGiangviensByKhoa,

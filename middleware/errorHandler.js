@@ -7,35 +7,35 @@ function errorHandler(err, req, res, next) {
     case errorCode.VALIDATION_ERROR:
       res.json({
         title: "validation error",
-        mes: err.message,
+        message: err.message,
         stackTrace: err.stack,
       });
       break;
     case errorCode.UNAUTHORIZED:
       res.json({
         title: "Unauthorized",
-        mes: err.message,
+        message: err.message,
         stackTrace: err.stack,
       });
       break;
     case errorCode.FORBIDDEN:
       res.json({
         title: "Forbidden",
-        mes: err.message,
+        message: err.message,
         stackTrace: err.stack,
       });
       break;
     case errorCode.NOT_FOUND:
       res.json({
         title: "Not found",
-        mes: err.message,
+        message: err.message,
         stackTrace: err.stack,
       });
       break;
     case errorCode.SERVER_ERROR:
       res.json({
         title: "Server error",
-        mes: err.message,
+        message: err.message,
         stackTrace: err.stack,
       });
       break;

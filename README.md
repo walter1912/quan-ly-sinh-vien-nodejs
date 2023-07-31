@@ -82,3 +82,29 @@
         + get '/post/:postId' lấy các tương tác của bài viết đó
         - post '/'
         - put '/:id'
+
+
+### Code my format
+#### response - server trả về
+    1. res.status 
+        trả về mã lỗi để FE biết để fix/handle lỗi
+         Các mã: 
+         - 400: lỗi validation thường ở form 
+         - 401: chưa đăng nhập hoặc không có quyền truy cập 
+         - 403: khi user không có quyền truy cập 
+         - 404: không tìm thấy tài nguyên
+    2. res.data 
+        res.data.message: trả về thông báo để FE hiển thị cho người dùng biết.
+        res.data.${result}
+            result ở đây là user, sinhvien, giangvien, ...
+            nếu lấy danh sách thì thêm 's': users, sinhviens,...
+        handle khi có lỗi thì sẽ có thêm:
+        res.data.stackTrace: khi throw ra 1 Error thì sẽ có err.stackTrace.
+        res.data.tilte: tiêu đề lỗi.
+#### controller 
+    - không trả về dữ liệu có _id và _v. 
+    - ở mỗi controller có 1 hàm dataToDto để convert từ _id thành id 
+    và các yêu cầu khác khi trả về ở mỗi API. 
+    - khi lấy biến từ req.params => lấy theo kiểu destructoring.
+
+    - luôn có phần check status(404) sau khi lấy dữ liệu từ mongoDb.
