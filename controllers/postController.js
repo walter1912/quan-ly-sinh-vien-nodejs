@@ -80,7 +80,7 @@ const createPost = asyncHandler(async (req, res) => {
     content,
   };
   const post = await Post.create(dataPost);
-  const result = postToDto(post);
+  const result = dataToDto(post);
   res.status(201).json({
     message: "Tạo bài viết thành công",
     post: result,
@@ -135,13 +135,13 @@ const updatePost = asyncHandler(async (req, res) => {
 // @access private
 const deletePost = asyncHandler(async (req, res) => {});
 
-function postToDto(post) {
+function dataToDto(post) {
   const postDto = {
     id: post.id,
-    thumbnail: post.thumbnail,
-    title: post.title,
+    thumbnail: post.thumbnail ,
+    title: post.title ,
     userId: post.userId,
-    createAt: post.createAt,
+    createdAt: post.createdAt,
   };
   return postDto;
 }
@@ -151,8 +151,8 @@ function postFixId(post) {
     title: post.title,
     userId: post.userId,
     content: post.content,
-    createAt: post.createAt,
-    upddateAt: post.upddateAt,
+    createdAt: post.createdAt,
+    updatedAt: post.updatedAt,
     thumbnail: post.thumbnail,
   };
   return postDto;

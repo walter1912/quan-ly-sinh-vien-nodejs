@@ -203,8 +203,8 @@ function dataToDto(ele) {
     ngaySinh,
     gioiTinh,
     khoaId,
-    createAt,
-    updateAt,
+    createdAt,
+    updatedAt,
   } = ele;
   var dto = {
     id: ele.id,
@@ -214,8 +214,8 @@ function dataToDto(ele) {
     ngaySinh,
     gioiTinh,
     khoaId,
-    createAt,
-    updateAt,
+    createdAt,
+    updatedAt,
   };
   return dto;
 }

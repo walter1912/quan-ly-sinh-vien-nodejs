@@ -97,18 +97,22 @@ const checkExistedFavorite = asyncHandler(async (req, res) => {
     res.status(404);
     throw new Error("Không tìm thấy lượt tương tác!");
   }
-  res.status(200).json(favExisted);
+  const result = dataToDto(favExisted);
+  res.status(200).json({
+    message: "Có tương tác của người dùng",
+    favorite: result,
+  });
 });
 
 function dataToDto(ele) {
-  const { postId, userId, type, creaAt, updateAt } = ele;
+  const { postId, userId, type, createdAt, updatedAt } = ele;
   const dto = {
     id: ele.id,
     postId,
     userId,
     type,
-    creaAt,
-    updateAt,
+    createdAt,
+    updatedAt,
   };
   return dto;
 }

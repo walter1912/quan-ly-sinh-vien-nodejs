@@ -20,6 +20,6 @@ routes.route("/").post(createFavorite);
 // - put '/:id'
 routes.route("/:id").put(updateFavorite);
 // check existed
-routes.route("/checkExist/:userId&postId").get(checkExistedFavorite);
+routes.route("/checkExist/:userId/:postId").get(checkExistedFavorite);
 
 module.exports = routes;

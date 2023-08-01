@@ -66,15 +66,15 @@ const createComment = asyncHandler(async (req, res) => {
 const updateComment = asyncHandler(async (req, res) => {});
 
 function dataToDto(cmt) {
-  const { postId, repCommentId, content, level, createAt, updateAt } = cmt;
+  const { postId, repCommentId, content, level, createdAt, updatedAt } = cmt;
   let cmtDto = {
     id: cmt.id,
     postId,
     repCommentId,
     content,
     level,
-    createAt,
-    updateAt,
+    createdAt,
+    updatedAt,
   };
   return cmtDto;
 }
